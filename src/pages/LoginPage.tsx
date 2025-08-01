@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../features/auth/authApi';
 import { setCredentials } from '../features/auth/authSlice';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { useNotification } from '../components/common/NotificationProvider';
 
 const LoginPage: React.FC = () => {
   const [phone, setPhone] = useState('');
@@ -12,6 +13,8 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { showNotification } = useNotification(); 
 
   const [login, { isLoading, isSuccess, isError, error: loginError }] = useLoginMutation();
 
@@ -33,10 +36,16 @@ const LoginPage: React.FC = () => {
     setError('');
     try {
       const response = await login({ phone, password }).unwrap();
+      console.log('Login response:', response);
       dispatch(setCredentials({
-        token: response.api.token,
-        refreshToken: response.api.refreshToken,
+        token: response.data.api.token,
+        refreshToken: response.data.api.refreshToken,
       }));
+
+      showNotification("success", "Login Successful", "You have successfully logged in.");
+      navigate('/dashboard');
+
+
     } catch (err) {
       // Error handling is done in useEffect
     }

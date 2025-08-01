@@ -7,15 +7,17 @@ import BusinessCard from '../../features/businesses/components/BusinessCard';
 const BusinessesPage: React.FC = () => {
   const { data, isLoading, isError } = useGetBusinessesQuery();
   const navigate = useNavigate();
-  const [view, setView] = useState<'grid' | 'table'>('grid');
+  const [view, setView] = useState<'grid' | 'table'>('table');
   const [searchTerm, setSearchTerm] = useState('');
+
+  console.log(data);
   
   const handleSubscribeClick = (businessId: string) => {
     navigate(`/dashboard/subscribe/${businessId}`);
   };
   
   // Filter businesses based on search term
-  const filteredBusinesses = data?.data.items.filter(business => 
+  const filteredBusinesses = data && data.filter(business => 
     business.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     business.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     business.address.toLowerCase().includes(searchTerm.toLowerCase())
@@ -161,13 +163,13 @@ const BusinessesPage: React.FC = () => {
                 <tr key={business.businessID} className="hover:bg-neutral-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
+                      {/* <div className="flex-shrink-0 h-10 w-10">
                         <img
                           className="h-10 w-10 rounded-full object-cover"
                           src={business.businessPhotos?.[0]?.photoURL || 'https://via.placeholder.com/100?text=No+Image'}
                           alt=""
                         />
-                      </div>
+                      </div> */}
                       <div className="ml-4">
                         <div className="text-sm font-medium text-neutral-800">{business.name}</div>
                       </div>

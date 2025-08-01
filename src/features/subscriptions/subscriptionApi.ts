@@ -1,3 +1,4 @@
+import type { ApiResponse } from '../../types/main';
 import { api } from '../api/apiSlice';
 
 export interface SubscriptionPlan {
@@ -27,15 +28,27 @@ export interface Service {
 
 export interface Subscription {
   subscriptionID: string;
-  planName?: string;
+  subscriptionPlanName?: string;
   serviceName?: string;
   status: string;
   startDate: string;
   endDate: string;
   renewalMode: string;
-  // Add other properties as needed from the actual API response
+  id:number;
+  
 }
 
+
+interface PaymentInitiateResponse {
+  paymentId: string;
+  status: string;
+  redirectUrl: string;
+}
+
+interface CreatedSubscriptionDto {
+  createdSubscription: any;
+  paymentResponse?: PaymentInitiateResponse;
+}
 
 export const subscriptionApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -73,14 +86,22 @@ export const subscriptionApi = api.injectEndpoints({
         `/api/subscription/subscriber/${subscriberType}/${subscriberId}`,
       providesTags: ['Subscription'],
     }),
-    cancelSubscription: builder.mutation<any, string>({
+     getUserSubscriptions: builder.query<
+      { message: string; data: Subscription[] }, // Adjust data structure
+      void
+    >({
+      query: () =>
+        `/api/subscription/user`,
+      providesTags: ['Subscription'],
+    }),
+    cancelSubscription: builder.mutation<any, string|number>({
       query: (id) => ({
         url: `/api/subscription/${id}/cancel`,
         method: 'POST',
       }),
       invalidatesTags: ['Subscription'],
     }),
-    pauseSubscription: builder.mutation<any, { subscriptionId: string }>({
+    pauseSubscription: builder.mutation<any, { subscriptionId: string|number,pauseEndDate:string }>({
       query: (body) => ({
         url: '/api/subscription/pause',
         method: 'POST',
@@ -88,19 +109,53 @@ export const subscriptionApi = api.injectEndpoints({
       }),
       invalidatesTags: ['Subscription'],
     }),
-    resumeSubscription: builder.mutation<any, string>({
+    resumeSubscription: builder.mutation<any, string|number>({
       query: (id) => ({
         url: `/api/subscription/${id}/resume`,
         method: 'POST',
       }),
       invalidatesTags: ['Subscription'],
     }),
-    renewSubscription: builder.mutation<any, string>({
+    renewSubscription: builder.mutation<any, string|number>({
       query: (id) => ({
         url: `/api/subscription/${id}/renew`,
         method: 'POST',
       }),
       invalidatesTags: ['Subscription'],
+    }),
+    retrySubscription: builder.mutation<any, string|number>({
+      query: (id) => ({
+        url: `/api/subscription/${id}/retry-payment`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Subscription'],
+    }),
+       createSubscriptionWithPayment: builder.mutation<
+      ApiResponse<CreatedSubscriptionDto>,
+      {
+        subscriberType: string;
+        subscriberId: string;
+        subscriptionType: string;
+        subscriptionPlanId: number;
+        serviceId: number;
+        renewalMode: string;
+        payerInfo: {
+          email: string;
+          phoneNumber: string;
+          firstName: string;
+          lastName: string;
+          countryCode: string;
+        };
+        currency: string;
+        gatewayName: string;
+        returnUrl: string;
+      }
+    >({
+      query: (data) => ({
+        url: '/api/subscription/with-payment',
+        method: 'POST',
+        body: data,
+      }),
     }),
   }),
 });
@@ -114,4 +169,7 @@ export const {
   usePauseSubscriptionMutation,
   useResumeSubscriptionMutation,
   useRenewSubscriptionMutation,
+  useGetUserSubscriptionsQuery,
+  useRetrySubscriptionMutation,
+  useCreateSubscriptionWithPaymentMutation
 } = subscriptionApi;

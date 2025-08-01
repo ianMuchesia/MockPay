@@ -8,19 +8,19 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#4F46E5', // Modern indigo color
-          dark: '#3730A3',
-          light: '#818CF8',
+          DEFAULT: '#F65017', 
+          dark: '#D53E0A',    
+          light: '#FF7A4A',   
         },
         secondary: {
-          DEFAULT: '#10B981', // Teal green
-          dark: '#059669',
-          light: '#34D399',
+          DEFAULT: '#2A3342', 
+          dark: '#1E2632',
+          light: '#3C4858',
         },
         accent: {
-          DEFAULT: '#F59E0B', // Amber
-          dark: '#D97706',
-          light: '#FBBF24',
+          DEFAULT: '#FFB800',
+          dark: '#E09F00',
+          light: '#FFCB45',
         },
         neutral: {
           50: '#F8FAFC',
@@ -50,7 +50,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/line-clamp'),
     require('@tailwindcss/forms'),
   ],
 }

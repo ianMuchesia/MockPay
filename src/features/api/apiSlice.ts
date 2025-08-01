@@ -14,7 +14,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Business', 'Subscription', 'Banner', 'SubscriptionPlan', 'Service'], // Define tag types for caching and invalidation
+  tagTypes: ['Business', 'Subscription', 'Banner', 'SubscriptionPlan', 'Service','PaymentRecord'], // Define tag types for caching and invalidation
   endpoints: (builder) => ({
     // This is where all specific endpoints will be injected
   }),

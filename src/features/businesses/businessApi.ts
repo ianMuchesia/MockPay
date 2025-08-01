@@ -27,21 +27,22 @@ interface BusinessListingResponse {
   };
 }
 
+
+
 export const businessApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getHomeBusinesses: builder.mutation<BusinessListingResponse, { pageNumber: number; pageSize: number; pageType: string }>({
       query: (body) => ({
         url: '/api/Business/home-listing',
         method: 'POST',
-        body,
+        body:{}
       }),
       invalidatesTags: ['Business'], // Invalidate when new data might come in
     }),
-    getBusinesses: builder.query<BusinessListingResponse, void>({
+    getBusinesses: builder.query<Business[], void>({
       query: () => ({
-        url: '/api/Business/home-listing', // Re-using home-listing for simplicity, adjust if needed
-        method: 'POST',
-        body: { pageNumber: 1, pageSize: 100, pageType: 'List' }, // Fetching more for table
+        url: '/api/Business/user', // Re-using home-listing for simplicity, adjust if needed
+        method: 'GET',
       }),
       providesTags: ['Business'],
     }),

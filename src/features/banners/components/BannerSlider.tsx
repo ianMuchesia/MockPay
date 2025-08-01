@@ -4,6 +4,7 @@ import { LoadingSpinner } from '../../../components/common/LoadingSpinner';
 
 const BannerSlider: React.FC = () => {
   const { data, isLoading, isError } = useGetBannersQuery();
+  console.log(data);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {

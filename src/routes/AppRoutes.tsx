@@ -7,6 +7,9 @@ import BusinessesPage from '../pages/dashboard/BusinessesPage';
 import SubscribePage from '../pages/dashboard/SubscribePage';
 import SubscriptionsPage from '../pages/dashboard/SubscriptionsPage';
 import ProtectedRoute from './ProtectedRoute';
+import PaymentDetailsPage from '../pages/dashboard/PaymentDetailsPage';
+import PaymentStatusPage from '../pages/dashboard/PaymentStatusPage';
+import PaymentHistoryPage from '../pages/dashboard/PaymentHistoryPage';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -22,6 +25,9 @@ const AppRoutes: React.FC = () => {
             <Route path="businesses" element={<BusinessesPage />} />
             <Route path="subscribe/:businessId" element={<SubscribePage />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
+            <Route path='payment-details' element={<PaymentDetailsPage/>} />
+            <Route path="payment-status" element={<PaymentStatusPage />} />
+            <Route path='payment-history' element={<PaymentHistoryPage />} />
           </Route>
         </Route>
 

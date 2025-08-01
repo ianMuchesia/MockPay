@@ -5,17 +5,11 @@ import AppRoutes from './routes/AppRoutes';
 import './main.css'; // Tailwind CSS import
 import NotificationProvider from './components/common/NotificationProvider';
 
+
 const App: React.FC = () => {
   // Apply global theme settings
-  useEffect(() => {
-    // Check for user dark mode preference
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    
-    // Add smooth scroll behavior
+useEffect(() => {
+    // Remove all dark mode logic and just set smooth scrolling
     document.documentElement.style.scrollBehavior = 'smooth';
   }, []);
   
