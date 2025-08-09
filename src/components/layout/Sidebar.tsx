@@ -27,6 +27,13 @@ const Sidebar: React.FC = () => {
       icon: "fa-receipt",
       path: "/dashboard/subscriptions",
     },
+
+    {
+      name: "Banners",
+      icon: "fa-bullhorn",
+      path: "/dashboard/banners",
+    },
+
     {
       name: "Payment History",
       icon: "fa-credit-card",
@@ -114,7 +121,7 @@ const Sidebar: React.FC = () => {
 
         {/* User Section */}
         {isAuthenticated && !collapsed && (
-          <div className="mt-auto pt-6 border-t border-neutral-100 mt-8">
+          <div className="mt-auto pt-6 border-t border-neutral-100">
             <div className="flex items-center p-4 hover:bg-neutral-100 rounded-lg cursor-pointer">
               <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center">
                 <i className="fas fa-user text-neutral-500"></i>
