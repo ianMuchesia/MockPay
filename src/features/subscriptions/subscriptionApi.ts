@@ -11,7 +11,7 @@ export interface SubscriptionPlan {
   durationInDays: number;
   status: string;
   isRenewable: boolean;
-  services: { id: number; name: string; code: string }[];
+  services: Service[];
 }
 
 export interface Service {
