@@ -27,7 +27,7 @@ const PaymentStatusPage: React.FC = () => {
     refetch 
   } = useGetPaymentStatusQuery(transactionId || '', { 
     skip: !transactionId,
-    pollingInterval: isPolling ? 2000 : 0 // Poll every 2 seconds if polling is enabled
+    pollingInterval: isPolling ? 2000 : 0 
   });
 
   // Start polling when component mounts if we have a transaction ID
@@ -43,7 +43,7 @@ const PaymentStatusPage: React.FC = () => {
       // Stop polling once we get a final status
       setIsPolling(false);
       setFinalStatus(paymentData.status);
-    } else if (pollCount >= 15) { // Stop after 30 seconds (15 attempts * 2 seconds)
+    } else if (pollCount >= 15) {
       setIsPolling(false);
       setFinalStatus('timeout');
     }
@@ -57,7 +57,7 @@ const PaymentStatusPage: React.FC = () => {
     }
   }, [paymentData, isPolling, pollCount]);
 
-  // Handle "no transaction ID" case
+ 
   if (!transactionId) {
     return (
       <div className="max-w-2xl mx-auto">

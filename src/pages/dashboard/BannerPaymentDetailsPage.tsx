@@ -10,13 +10,14 @@ const BannerPaymentDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  // Get service details from URL params
+ 
   const serviceId = searchParams.get('serviceId');
   const subscriptionType = searchParams.get('subscriptionType');
   const price = searchParams.get('price');
   const name = searchParams.get('name');
   const billingCycle = searchParams.get('billingCycle');
-  const returnTo = searchParams.get('returnTo'); // 'banner-creation' if coming from create flow
+  const returnTo = searchParams.get('returnTo');
+  const bannerId = searchParams.get('bannerId');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,10 +36,10 @@ const BannerPaymentDetailsPage: React.FC = () => {
   const [modalType, setModalType] = useState<'success' | 'error'>('success');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // API hooks
+
   const [createSubscriptionWithPayment, { isLoading }] = useCreateSubscriptionWithPaymentMutation();
   
-  // Construct return URL
+ 
   const baseUrl = window.location.origin;
   const returnUrl = `${baseUrl}/dashboard/payment-status`;
 
@@ -57,21 +58,21 @@ const BannerPaymentDetailsPage: React.FC = () => {
     }
   };
 
-  // Form validation
+ 
   const validateForm = () => {
     const errors: Record<string, string> = {};
     
     if (!formData.firstName.trim()) errors.firstName = 'First name is required';
     if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
     
-    // Email validation
+   
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = 'Email is invalid';
     }
     
-    // Phone number validation - basic check
+ 
     if (!formData.phoneNumber.trim()) {
       errors.phoneNumber = 'Phone number is required';
     } else if (!/^[0-9]{9,12}$/.test(formData.phoneNumber.replace(/\s/g, ''))) {
@@ -96,14 +97,14 @@ const BannerPaymentDetailsPage: React.FC = () => {
     }
     
     try {
-      // Prepare the payload (no businessId needed!)
+      
       const payload = {
-        subscriberType: 'USER', // Changed from BUSINESS to USER
-        subscriberId: '', // Will be handled by backend from auth token
-        subscriptionType: subscriptionType || 'SERVICE',
+        subscriberType: 'BANNER',
+        subscriberId: bannerId?.toString() || '', 
+        subscriptionType: "STANDALONE_SERVICE",
         subscriptionPlanId: 0,
         serviceId: serviceId ? parseInt(serviceId) : 0,
-        renewalMode: 'AUTO',
+        renewalMode: 'MANUAL',
         payerInfo: {
           email: formData.email,
           phoneNumber: formData.phoneNumber,
@@ -120,42 +121,32 @@ const BannerPaymentDetailsPage: React.FC = () => {
       
       const response = await createSubscriptionWithPayment(payload).unwrap();
       
-      // If we got a redirect URL from the payment response
-      if (response.data.paymentResponse?.redirectUrl) {
-        // Store return context if coming from banner creation
-        if (returnTo === 'banner-creation') {
-          sessionStorage.setItem('paymentContext', 'banner-creation');
-        }
-        
-        // Redirect to the payment gateway
-        window.location.href = response.data.paymentResponse.redirectUrl;
-      } else if (response.data.createdSubscription?.status === 'Active') {
-        // Subscription is immediately active without payment (e.g., free tier)
-        setModalMessage('Banner service activated successfully!');
-        setModalType('success');
-        setShowModal(true);
-        
-        // Redirect based on context
-        setTimeout(() => {
-          if (returnTo === 'banner-creation') {
-            navigate('/dashboard/banners/create');
-          } else {
-            navigate('/dashboard/banners');
-          }
-        }, 2000);
-      } else {
-        // If no redirect URL and subscription isn't active, show error
-        setModalMessage('Payment initialization failed. Please try again.');
-        setModalType('error');
-        setShowModal(true);
-      }
-    } catch (error: any) {
-      const errMsg = error?.data?.error || 'Failed to process payment. Please try again.';
-      setModalMessage(errMsg);
+    if (response.data.paymentResponse?.redirectUrl) {
+      window.location.href = response.data.paymentResponse.redirectUrl;
+    } else if (response.data.createdSubscription?.status === 'Active') {
+      
+      setModalMessage('Subscription activated successfully!');
+      setModalType('success');
+      setShowModal(true);
+      
+     
+      setTimeout(() => {
+        navigate('/dashboard/subscriptions');
+      }, 2000);
+    } else {
+     
+      setModalMessage('Payment initialization failed. Please try again.');
       setModalType('error');
       setShowModal(true);
     }
-  };
+  } catch (error: any) {
+    const errMsg = error?.data?.error || 'Failed to process payment. Please try again.';
+    setModalMessage(errMsg);
+    setModalType('error');
+    setShowModal(true);
+  }
+};
+
 
   // Check if we have the required params
   if (!serviceId) {

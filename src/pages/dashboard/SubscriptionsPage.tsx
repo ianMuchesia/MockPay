@@ -7,15 +7,12 @@ import {
   useGetUserSubscriptionsQuery,
   useRetrySubscriptionMutation,
 } from "../../features/subscriptions/subscriptionApi";
-import { LoadingSpinner } from "../../components/common/LoadingSpinner";
 import Modal from "../../components/common/Modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 const SubscriptionsPage: React.FC = () => {
-  // Hardcoding subscriberId for demonstration. In a real app, this would come from auth context
-  // const subscriberId = "2ef35f73-9d65-4d8e-8ef0-51d067a1618a"; // Example Business ID
-  // const subscriberType = "BUSINESS";
+  
 
   const { data, isLoading, isError, refetch } = useGetUserSubscriptionsQuery();
 
@@ -51,7 +48,7 @@ const SubscriptionsPage: React.FC = () => {
   }>({ action: null, id: null });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pauseEndDate, setPauseEndDate] = useState<Date>(
-    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Default to 30 days in the future
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) 
   );
 
   const handleConfirmAction = (
@@ -90,7 +87,7 @@ const SubscriptionsPage: React.FC = () => {
           break;
       }
 
-      // Action succeeded
+      
       const actionText =
         action === "cancel"
           ? "cancelled"
@@ -105,7 +102,7 @@ const SubscriptionsPage: React.FC = () => {
       setModalMessage(`Subscription successfully ${actionText}!`);
       setModalType("success");
       setShowModal(true);
-      refetch(); // Re-fetch subscriptions to update the UI
+      refetch(); 
     } catch (error: any) {
       const errMsg =
         error && "data" in error
@@ -117,7 +114,7 @@ const SubscriptionsPage: React.FC = () => {
     }
   };
 
-  // Filter subscriptions based on selected filter
+  
   const filteredSubscriptions =
     data?.data.filter((sub) => {
       if (filter === "all") return true;
@@ -126,7 +123,7 @@ const SubscriptionsPage: React.FC = () => {
 
   console.log("Filtered subscriptions:", filteredSubscriptions);
 
-  // Get subscription counts by status
+  
   const getStatusCounts = () => {
     const counts = {
       all: data?.data.length || 0,

@@ -145,6 +145,33 @@ export const bannerApi = api.injectEndpoints({
         formData.append('Title', bannerData.title);
         formData.append('Description', bannerData.description);
         formData.append('Link', bannerData.link);
+        //formData.append('SelectedSubscriptionId', bannerData.selectedSubscriptionId.toString());
+        
+        if (bannerData.tariffs) {
+          bannerData.tariffs.forEach(tariff => {
+            formData.append('Tariffs', tariff);
+          });
+        }
+        
+        formData.append('WebImage', bannerData.webImage);
+        formData.append('MobileImage', bannerData.mobileImage);
+
+        return {
+          url: '/api/v2/banners/create',
+          method: 'POST',
+          body: formData,
+        };
+      },
+      invalidatesTags: ['Banner'],
+    }),
+
+      //create premium banner
+     createPremiumBanner: builder.mutation<{ message: string; data: Banner }, CreateBannerRequest>({
+      query: (bannerData) => {
+        const formData = new FormData();
+        formData.append('Title', bannerData.title);
+        formData.append('Description', bannerData.description);
+        formData.append('Link', bannerData.link);
         formData.append('SelectedSubscriptionId', bannerData.selectedSubscriptionId.toString());
         
         if (bannerData.tariffs) {
@@ -157,13 +184,14 @@ export const bannerApi = api.injectEndpoints({
         formData.append('MobileImage', bannerData.mobileImage);
 
         return {
-          url: '/api/v2/banners',
+          url: '/api/v2/banners/create/premium',
           method: 'POST',
           body: formData,
         };
       },
       invalidatesTags: ['Banner'],
     }),
+
 
     // Update banner
     updateBanner: builder.mutation<{ message: string; data: Banner }, UpdateBannerRequest>({
@@ -242,4 +270,5 @@ export const {
   useLinkBannerToSubscriptionMutation,
   useGetBannersQuery,
    useGetBannerServiceQuery,
+   useCreatePremiumBannerMutation
 } = bannerApi;
