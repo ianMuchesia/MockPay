@@ -66,7 +66,7 @@ const SubscriptionPaymentDetailsPage: React.FC = () => {
       } else {
         response = await renewSubscription(payload).unwrap();
         if (response.data.paymentResponse?.redirectUrl) {
-          window.location.href = response.data.pay.redirectUrl;
+          window.location.href = response.data.paymentResponse.redirectUrl;
         } else if (response.data.createdSubscription?.status === "Active") {
           setModal({
             open: true,
