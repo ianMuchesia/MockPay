@@ -1,14 +1,15 @@
 import React from 'react';
-import type { Service } from '../../features/subscriptions/subscriptionApi';
+import type { Service, SubscriptionOfferingService } from '../../features/subscriptions/subscriptionApi';
 
 interface ServiceCardProps {
-  service: Service;
+  service: Service | SubscriptionOfferingService;
   onAdd: (serviceId: number) => void;
   isAdded: boolean;
   isFeatured?: boolean;
+   isAvailableForPurchase?: boolean;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, onAdd, isAdded, isFeatured = false }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ service, onAdd, isAdded, isFeatured = false ,isAvailableForPurchase=true}) => {
   // Calculate a unique color based on the service type and id
   const getServiceStyling = () => {
     const type = service.type;
@@ -180,28 +181,31 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, onAdd, isAdded, isFe
         </div>
         
         {/* Action Button */}
-        <button
-          onClick={() => onAdd(service.id)}
-          className={`w-full py-4 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg
-            ${isAdded
-              ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-primary/25 transform scale-105'
-              : isFeatured
-                ? `bg-gradient-to-r ${serviceStyle.gradient} text-white hover:shadow-lg hover:-translate-y-0.5`
-                : 'bg-gradient-to-r from-neutral-700 to-neutral-800 text-white hover:from-neutral-800 hover:to-neutral-900 hover:shadow-neutral-200 hover:-translate-y-0.5'
-            }`}
-        >
-          {isAdded ? (
-            <>
-              <i className="fas fa-check-circle mr-2"></i>
-              Service Added
-            </>
-          ) : (
-            <>
-              <i className="fas fa-plus-circle mr-2"></i>
-              Add Service
-            </>
-          )}
-        </button>
+     <button
+    onClick={() => onAdd(service.id)}
+    disabled={!isAvailableForPurchase}
+    className={`w-full py-4 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg
+      ${!isAvailableForPurchase ? 'opacity-60 cursor-not-allowed' : ''}
+      ${isAdded
+        ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-primary/25 transform scale-105'
+        : isFeatured
+          ? `bg-gradient-to-r ${serviceStyle.gradient} text-white hover:shadow-lg hover:-translate-y-0.5`
+          : 'bg-gradient-to-r from-neutral-700 to-neutral-800 text-white hover:from-neutral-800 hover:to-neutral-900 hover:shadow-neutral-200 hover:-translate-y-0.5'
+      }`}
+    title={!isAvailableForPurchase ? "You already own this service" : ""}
+  >
+    {isAdded ? (
+      <>
+        <i className="fas fa-check-circle mr-2"></i>
+        Service Added
+      </>
+    ) : (
+      <>
+        <i className="fas fa-plus-circle mr-2"></i>
+        {isAvailableForPurchase ? "Add Service" : "Already Purchased"}
+      </>
+    )}
+  </button>
 
         {!isAdded && (
           <div className="text-center mt-3">

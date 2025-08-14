@@ -27,15 +27,22 @@ export interface Service {
 }
 
 export interface Subscription {
-  subscriptionID: string;
-  subscriptionPlanName?: string;
-  serviceName?: string;
-  status: string;
+  id: number;
+  subscriberType: string;
+  subscriberId: string;
+  subscriptionType: string;
   startDate: string;
   endDate: string;
+  status: string;
   renewalMode: string;
-  id:number;
-  
+  pricePaid: number;
+  currency: string;
+  subscriptionPlanId: number | null;
+  serviceId: number | null;
+  userId: number;
+  subscriptionPlanName: string | null;
+  serviceName: string | null;
+  // ...other fields as needed
 }
 
 
@@ -48,6 +55,40 @@ interface PaymentInitiateResponse {
 interface CreatedSubscriptionDto {
   createdSubscription: any;
   paymentResponse?: PaymentInitiateResponse;
+}
+
+export interface SubscriptionOfferingService {
+  id: number;
+  name: string;
+  code: string;
+  type:string;
+  description: string;
+  standalonePrice: number;
+  standaloneBillingCycle: string;
+  standaloneDurationInDays: number;
+  isAvailableForPurchase: boolean;
+  isSpecialCase: boolean;
+  status: string;
+}
+
+export interface SubscriptionOfferingPackage {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  isAvailableForPurchase: boolean;
+  isRenewable: boolean;
+  durationInDays: number;
+  billingCycle: string;
+  services: SubscriptionOfferingService[];
+}
+
+export interface SubscriptionOfferingsResponse {
+  message: string;
+  data: {
+    packages: SubscriptionOfferingPackage[];
+    standaloneServices: SubscriptionOfferingService[];
+  };
 }
 
 export const subscriptionApi = api.injectEndpoints({
@@ -77,6 +118,13 @@ export const subscriptionApi = api.injectEndpoints({
         body,
       }),
       invalidatesTags: ['Subscription'], // Invalidate subscriptions list after creation
+    }),
+    getSubscriptionById: builder.query<
+      { message: string; data: Subscription | null },
+      string | number
+    >({
+      query: (id) => `/api/subscription/${id}`,
+      providesTags:["Subscription"],
     }),
     getSubscriptionsBySubscriber: builder.query<
       { message: string; data: Subscription[] }, // Adjust data structure
@@ -116,19 +164,24 @@ export const subscriptionApi = api.injectEndpoints({
       }),
       invalidatesTags: ['Subscription'],
     }),
-    renewSubscription: builder.mutation<any, string|number>({
-      query: (id) => ({
-        url: `/api/subscription/${id}/renew`,
+    renewSubscription: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/api/subscription/renew`,
         method: 'POST',
+        body: body
       }),
       invalidatesTags: ['Subscription'],
     }),
-    retrySubscription: builder.mutation<any, string|number>({
-      query: (id) => ({
-        url: `/api/subscription/${id}/retry-payment`,
+    retrySubscription: builder.mutation<any, any>({
+      query: (body) => ({
+        url: `/api/subscription/retry-payment`,
         method: 'POST',
+        body: body
       }),
       invalidatesTags: ['Subscription'],
+    }),
+     getSubscriptionOfferings: builder.query<SubscriptionOfferingsResponse, string | undefined>({
+      query: (businessId) => `/api/subscription/offerings/${businessId}`,
     }),
        createSubscriptionWithPayment: builder.mutation<
       ApiResponse<CreatedSubscriptionDto>,
@@ -171,5 +224,7 @@ export const {
   useRenewSubscriptionMutation,
   useGetUserSubscriptionsQuery,
   useRetrySubscriptionMutation,
-  useCreateSubscriptionWithPaymentMutation
+  useCreateSubscriptionWithPaymentMutation,
+  useGetSubscriptionOfferingsQuery,
+  useGetSubscriptionByIdQuery,
 } = subscriptionApi;

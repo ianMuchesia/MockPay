@@ -10,8 +10,11 @@ import {
 import Modal from "../../components/common/Modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useNavigate } from "react-router-dom";
 
 const SubscriptionsPage: React.FC = () => {
+
+  const navigate = useNavigate();
   
 
   const { data, isLoading, isError, refetch } = useGetUserSubscriptionsQuery();
@@ -80,10 +83,10 @@ const SubscriptionsPage: React.FC = () => {
           await resumeSubscription(subscriptionId).unwrap();
           break;
         case "renew":
-          await renewSubscription(subscriptionId).unwrap();
+          navigate(`/dashboard/subscription-payment-details/${subscriptionId}/renew`);
           break;
         case "retry":
-          await retryPayment(subscriptionId).unwrap();
+          navigate(`/dashboard/subscription-payment-details/${subscriptionId}/retry`);
           break;
       }
 
@@ -326,7 +329,7 @@ const SubscriptionsPage: React.FC = () => {
             <div className="min-w-full">
               {filteredSubscriptions.map((sub) => (
                 <div
-                  key={sub.subscriptionID}
+                  key={sub.id}
                   className="border-b border-neutral-100 last:border-0"
                 >
                   <div className="p-6 flex flex-col md:flex-row md:items-center gap-6">
@@ -343,7 +346,7 @@ const SubscriptionsPage: React.FC = () => {
                               "Unknown Subscription"}
                           </h3>
                           <p className="text-sm text-neutral-500">
-                            ID: {sub.subscriptionID}
+                            Type: {sub.subscriberType}
                           </p>
                         </div>
                       </div>

@@ -44,7 +44,7 @@ interface Banner {
   sellerId: number;
   link: string;
   mobileImageUrl: string;
-  status: 'ACTIVE' | 'PENDING' | 'PAUSED' | 'EXPIRED';
+  status: string;
   pausedAt: string | null;
   createdAt: string;
   startDate: string | null;

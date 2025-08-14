@@ -20,6 +20,19 @@ interface PaymentStatusResponse {
   updatedAt: string;
 }
 
+export interface PayerInfo {
+  id: number;
+  userId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  countryCode: string;
+  preferredGateway: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 
 
@@ -28,8 +41,11 @@ export const paymentApi = api.injectEndpoints({
     getPaymentStatus: builder.query<PaymentStatusResponse, string>({
       query: (transactionId) => `/api/payment/status/${transactionId}`,
     }),
+     getPayerInformation: builder.query<{ message: string; data: PayerInfo }, void>({
+      query: () => "/api/payer-information/user",
+    }),
   }),
 });
 
-export const { useGetPaymentStatusQuery } = paymentApi;
+export const { useGetPaymentStatusQuery ,useGetPayerInformationQuery} = paymentApi;
 

@@ -316,6 +316,8 @@ const PaymentDetailsPage: React.FC = () => {
                   >
                     <option value="Pesapal">Pesapal</option>
                     <option value="Flutterwave">Flutterwave</option>
+                      <option value="Mpesa">Mpesa</option>
+                    <option value="Mock">Mock</option>
                   </select>
                 </div>
               </div>

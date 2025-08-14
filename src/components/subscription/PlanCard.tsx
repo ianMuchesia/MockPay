@@ -1,12 +1,13 @@
 import React from 'react';
-import type { SubscriptionPlan } from '../../features/subscriptions/subscriptionApi';
+import type { SubscriptionOfferingPackage, SubscriptionPlan } from '../../features/subscriptions/subscriptionApi';
 
 interface PlanCardProps {
-  plan: SubscriptionPlan;
+  plan: SubscriptionPlan|SubscriptionOfferingPackage ;
   onSelect: (planId: number) => void;
   isSelected: boolean;
   isPopular?: boolean;
   animate?: boolean;
+   isAvailableForPurchase?: boolean;
 }
 
 const PlanCard: React.FC<PlanCardProps> = ({ 
@@ -14,7 +15,8 @@ const PlanCard: React.FC<PlanCardProps> = ({
   onSelect, 
   isSelected,
   isPopular = false,
-  animate = true 
+  animate = true ,
+  isAvailableForPurchase = true
 }) => {
   const popularBadge = isPopular && (
     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
@@ -161,28 +163,31 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
         {/* Action Button */}
         <div className="p-6 pt-0">
-          <button
-            onClick={() => onSelect(plan.id)}
-            className={`w-full py-4 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg
-              ${isSelected
-                ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-primary/25 transform scale-105'
-                : isPopular
-                  ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white hover:from-yellow-500 hover:to-yellow-700 hover:shadow-yellow-200'
-                  : 'bg-gradient-to-r from-neutral-700 to-neutral-800 text-white hover:from-neutral-800 hover:to-neutral-900 hover:shadow-neutral-200'
-              }`}
-          >
-            {isSelected ? (
-              <>
-                <i className="fas fa-check-circle mr-2"></i>
-                Selected Plan
-              </>
-            ) : (
-              <>
-                <i className="fas fa-rocket mr-2"></i>
-                Select {plan.name}
-              </>
-            )}
-          </button>
+         <button
+    onClick={() => onSelect(plan.id)}
+    disabled={!isAvailableForPurchase}
+    className={`w-full py-4 px-4 rounded-xl font-bold transition-all duration-300 flex items-center justify-center shadow-lg
+      ${!isAvailableForPurchase ? 'opacity-60 cursor-not-allowed' : ''}
+      ${isSelected
+        ? 'bg-gradient-to-r from-primary to-primary-dark text-white shadow-primary/25 transform scale-105'
+        : isPopular
+          ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white hover:from-yellow-500 hover:to-yellow-700 hover:shadow-yellow-200'
+          : 'bg-gradient-to-r from-neutral-700 to-neutral-800 text-white hover:from-neutral-800 hover:to-neutral-900 hover:shadow-neutral-200'
+      }`}
+    title={!isAvailableForPurchase ? "You already own this package" : ""}
+  >
+    {isSelected ? (
+      <>
+        <i className="fas fa-check-circle mr-2"></i>
+        Selected Plan
+      </>
+    ) : (
+      <>
+        <i className="fas fa-rocket mr-2"></i>
+        {isAvailableForPurchase ? `Select ${plan.name}` : "Already Purchased"}
+      </>
+    )}
+  </button>
           
           {!isSelected && (
             <div className="text-center mt-2">

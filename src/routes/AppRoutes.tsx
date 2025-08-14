@@ -15,6 +15,7 @@ import CreateBannerPage from "../pages/dashboard/CreateBannerPage";
 import EditBannerPage from "../pages/dashboard/EditBannerPage";
 import BannerServicePurchasePage from "../pages/dashboard/BannerServicePurchasePage";
 import BannerPaymentDetailsPage from "../pages/dashboard/BannerPaymentDetailsPage";
+import SubscriptionPaymentDetailsPage from "../pages/dashboard/SubscriptionPaymentDetailsPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -37,6 +38,7 @@ const AppRoutes: React.FC = () => {
             <Route path="banners" element={<BannerManagementPage />} />
             <Route path="banners/create" element={<CreateBannerPage />} />
             <Route path="banners/edit/:bannerId" element={<EditBannerPage />} />
+            <Route path="subscription-payment-details/:subscriptionId/:action" element={<SubscriptionPaymentDetailsPage />} />
             <Route
               path="banners/purchase"
               element={<BannerServicePurchasePage />}

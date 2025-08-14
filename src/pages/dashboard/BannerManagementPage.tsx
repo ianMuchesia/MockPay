@@ -5,7 +5,6 @@ import {
   useGetUserBannersMutation,
   useDeleteBannerMutation 
 } from '../../features/banners/bannerApi';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import Modal from '../../components/common/Modal';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
@@ -22,7 +21,7 @@ const BannerManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(12);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'PENDING' | 'PAUSED' | 'EXPIRED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'Active' | 'Pending' | 'Paused' | 'Expired' | "PastDue" | "Cancelled">('ALL');
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [modalType, setModalType] = useState<'success' | 'error' | 'confirm'>('success');
@@ -88,14 +87,18 @@ const BannerManagementPage: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const baseClasses = 'px-2 py-1 rounded-full text-xs font-medium';
     switch (status) {
-      case 'ACTIVE':
+      case 'Active':
         return `${baseClasses} bg-green-100 text-green-800`;
-      case 'PENDING':
+      case 'Pending':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case 'PAUSED':
+      case 'Paused':
         return `${baseClasses} bg-gray-100 text-gray-800`;
-      case 'EXPIRED':
+      case 'Expired':
         return `${baseClasses} bg-red-100 text-red-800`;
+      case 'PastDue':
+        return `${baseClasses} bg-orange-100 text-orange-800`;
+      case 'Cancelled':
+        return `${baseClasses} bg-gray-200 text-gray-600`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
@@ -105,6 +108,8 @@ const BannerManagementPage: React.FC = () => {
   const filteredBanners = bannersData?.data.items.filter(banner => 
     statusFilter === 'ALL' || banner.status === statusFilter
   ) || [];
+
+
 
   // Loading state
   if (loadingEntitlements) {
@@ -255,7 +260,7 @@ const BannerManagementPage: React.FC = () => {
           {/* Status Filter Tabs */}
           <div className="mb-6 border-b border-neutral-200">
             <nav className="flex space-x-8">
-              {['ALL', 'ACTIVE', 'PENDING', 'PAUSED', 'EXPIRED'].map((status) => (
+              {['ALL', 'Active','Pending','Expired','Cancelled','PastDue'].map((status) => (
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status as any)}

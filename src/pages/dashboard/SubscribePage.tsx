@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  useGetSubscriptionPlansQuery,
-  useGetServicesQuery,
+  
   useCreateSubscriptionMutation,
+  useGetSubscriptionOfferingsQuery,
 } from "../../features/subscriptions/subscriptionApi";
 import PlanCard from "../../components/subscription/PlanCard";
 import ServiceCard from "../../components/subscription/ServiceCard";
@@ -16,16 +16,11 @@ const SubscribePage: React.FC = () => {
   const { businessId } = useParams<{ businessId: string }>();
   const navigate = useNavigate();
 
-  const {
-    data: plansData,
-    isLoading: loadingPlans,
-    isError: errorPlans,
-  } = useGetSubscriptionPlansQuery();
-  const {
-    data: servicesData,
-    isLoading: loadingServices,
-    isError: errorServices,
-  } = useGetServicesQuery();
+   const {
+    data: offeringsData,
+    isLoading: loadingOfferings,
+    isError: errorOfferings,
+  } = useGetSubscriptionOfferingsQuery(businessId);
 
   const [
     createSubscription,
@@ -115,14 +110,15 @@ const SubscribePage: React.FC = () => {
   };
 
   // Find the selected plan and service details for summary
-  const selectedPlan = plansData?.data.find(
+  const selectedPlan = offeringsData?.data.packages.find(
     (plan) => plan.id === selectedPlanId
   );
-  const selectedService = servicesData?.data.find(
+  const selectedService = offeringsData?.data.standaloneServices.find(
     (service) => service.id === selectedServiceId
   );
 
-  if (loadingPlans || loadingServices) {
+
+  if (loadingOfferings) {
     return (
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
@@ -154,7 +150,7 @@ const SubscribePage: React.FC = () => {
     );
   }
 
-  if (errorPlans || errorServices) {
+  if (errorOfferings) {
     return (
       <div className="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg">
         <div className="flex">
@@ -285,9 +281,9 @@ const SubscribePage: React.FC = () => {
             >
               <i className="fas fa-cube mr-2"></i>
               Premium Packages
-              {plansData?.data && (
+               {offeringsData?.data.packages && (
                 <span className="ml-2 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-                  {plansData.data.length}
+                  {offeringsData.data.packages.length}
                 </span>
               )}
             </button>
@@ -301,9 +297,9 @@ const SubscribePage: React.FC = () => {
             >
               <i className="fas fa-cog mr-2"></i>
               Individual Services
-              {servicesData?.data && (
+             {offeringsData?.data.standaloneServices && (
                 <span className="ml-2 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-                  {servicesData.data.length}
+                  {offeringsData.data.standaloneServices.length}
                 </span>
               )}
             </button>
@@ -322,15 +318,16 @@ const SubscribePage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              {plansData?.data.map((plan) => (
+              {offeringsData?.data.packages.map((plan) => (
                 <PlanCard
                   key={plan.id}
                   plan={plan}
                   onSelect={handleSelectPlan}
                   isSelected={selectedPlanId === plan.id}
+                  isAvailableForPurchase={plan.isAvailableForPurchase}
                 />
               ))}
-              {plansData?.data.length === 0 && (
+              {offeringsData?.data.packages.length === 0 && (
                 <div className="col-span-3 text-center py-16">
                   <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fas fa-box-open text-3xl text-neutral-400"></i>
@@ -363,7 +360,7 @@ const SubscribePage: React.FC = () => {
             {/* Service Categories */}
             <div className="space-y-8">
               {/* Listing Enhancement Services */}
-              { servicesData && servicesData?.data.filter(service => service.type === 'ListingEnhancement').length > 0 && (
+              { offeringsData && offeringsData.data.standaloneServices.filter(service => service.type === 'ListingEnhancement').length > 0 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -373,7 +370,7 @@ const SubscribePage: React.FC = () => {
                     <span className="text-sm text-neutral-500">• Boost your business visibility</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {servicesData.data
+                    {offeringsData.data.standaloneServices
                       .filter(service => service.type === 'ListingEnhancement')
                       .map((service) => (
                         <ServiceCard
@@ -381,6 +378,7 @@ const SubscribePage: React.FC = () => {
                           service={service}
                           onAdd={handleAddService}
                           isAdded={selectedServiceId === service.id}
+                           isAvailableForPurchase={service.isAvailableForPurchase}
                         />
                       ))}
                   </div>
@@ -388,7 +386,7 @@ const SubscribePage: React.FC = () => {
               )}
 
               {/* Notification Enhancement Services */}
-              {servicesData && servicesData?.data.filter(service => service.type === 'NotificationEnhancement').length > 0 && (
+              {offeringsData && offeringsData?.data.standaloneServices.filter(service => service.type === 'NotificationEnhancement').length > 0 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
@@ -398,7 +396,7 @@ const SubscribePage: React.FC = () => {
                     <span className="text-sm text-neutral-500">• Stay connected with customers</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {servicesData.data
+                    {offeringsData.data.standaloneServices
                       .filter(service => service.type === 'NotificationEnhancement')
                       .map((service) => (
                         <ServiceCard
@@ -406,6 +404,7 @@ const SubscribePage: React.FC = () => {
                           service={service}
                           onAdd={handleAddService}
                           isAdded={selectedServiceId === service.id}
+                          isAvailableForPurchase={service.isAvailableForPurchase}
                         />
                       ))}
                   </div>
@@ -413,7 +412,7 @@ const SubscribePage: React.FC = () => {
               )}
 
               {/* Banner Display Services */}
-              {servicesData && servicesData?.data.filter(service => service.type === 'BannerDisplay').length > 0 && (
+              {offeringsData && offeringsData?.data.standaloneServices.filter(service => service.type === 'BannerDisplay').length > 0 && (
                 <div>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -423,7 +422,7 @@ const SubscribePage: React.FC = () => {
                     <span className="text-sm text-neutral-500">• Maximum visual impact</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {servicesData.data
+                    {offeringsData.data.standaloneServices
                       .filter(service => service.type === 'BannerDisplay')
                       .map((service) => (
                         <ServiceCard
@@ -431,6 +430,7 @@ const SubscribePage: React.FC = () => {
                           service={service}
                           onAdd={handleAddService}
                           isAdded={selectedServiceId === service.id}
+                           isAvailableForPurchase={service.isAvailableForPurchase}
                         />
                       ))}
                   </div>
@@ -438,7 +438,7 @@ const SubscribePage: React.FC = () => {
               )}
 
               {/* Other Services */}
-              {servicesData && servicesData?.data.filter(service => 
+              {offeringsData && offeringsData?.data.standaloneServices.filter(service => 
                 !['ListingEnhancement', 'NotificationEnhancement', 'BannerDisplay'].includes(service.type)
               ).length > 0 && (
                 <div>
@@ -450,7 +450,7 @@ const SubscribePage: React.FC = () => {
                     <span className="text-sm text-neutral-500">• Extra business tools</span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {servicesData.data
+                    {offeringsData.data.standaloneServices
                       .filter(service => 
                         !['ListingEnhancement', 'NotificationEnhancement', 'BannerDisplay'].includes(service.type)
                       )
@@ -460,13 +460,14 @@ const SubscribePage: React.FC = () => {
                           service={service}
                           onAdd={handleAddService}
                           isAdded={selectedServiceId === service.id}
+                           isAvailableForPurchase={service.isAvailableForPurchase}
                         />
                       ))}
                   </div>
                 </div>
               )}
 
-              {servicesData?.data.length === 0 && (
+              {offeringsData?.data.standaloneServices.length === 0 && (
                 <div className="col-span-3 text-center py-16">
                   <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="fas fa-concierge-bell text-3xl text-neutral-400"></i>
