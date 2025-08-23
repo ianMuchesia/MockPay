@@ -16,13 +16,17 @@ import EditBannerPage from "../pages/dashboard/EditBannerPage";
 import BannerServicePurchasePage from "../pages/dashboard/BannerServicePurchasePage";
 import BannerPaymentDetailsPage from "../pages/dashboard/BannerPaymentDetailsPage";
 import SubscriptionPaymentDetailsPage from "../pages/dashboard/SubscriptionPaymentDetailsPage";
+import SingleBusinessPage from "../pages/SingleBusinessPage";
+import SignupPage from "../pages/SignupPage";
 
 const AppRoutes: React.FC = () => {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/businesses/:businessId" element ={<SingleBusinessPage/>}/>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage/>} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>

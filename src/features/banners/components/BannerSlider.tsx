@@ -1,117 +1,158 @@
 import React, { useState, useEffect } from 'react';
-import { useGetBannersQuery } from '../bannerApi';
-import { LoadingSpinner } from '../../../components/common/LoadingSpinner';
+import { useGetScheduledBannersQuery } from '../bannerApi';
 
 const BannerSlider: React.FC = () => {
-  const { data, isLoading, isError } = useGetBannersQuery();
-  console.log(data);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const { data: bannersData, isLoading, isError } = useGetScheduledBannersQuery();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const banners = bannersData?.data || [];
 
   useEffect(() => {
-    // Auto rotate banners every 5 seconds if there's more than one
-    if (data?.data && data?.data?.length > 1) {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkIsMobile();
+    window.addEventListener('resize', checkIsMobile);
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  useEffect(() => {
+    if (banners.length > 1) {
       const interval = setInterval(() => {
-        setActiveIndex(prevIndex => (prevIndex + 1) % data.data.length);
-      }, 5000);
+        setCurrentSlide((prev) => (prev + 1) % banners.length);
+      }, 6000);
       return () => clearInterval(interval);
     }
-  }, [data]);
+  }, [banners.length]);
 
-  if (isLoading) return (
-    <div className="relative w-full h-96 bg-neutral-100 animate-pulse rounded-2xl overflow-hidden mb-12">
-      <div className="absolute inset-0 flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    </div>
-  );
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % banners.length);
+  };
 
-  if (isError || !data?.data.length) {
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + banners.length) % banners.length);
+  };
+
+  if (isLoading) {
     return (
-      <div className="relative w-full h-96 bg-gradient-to-r from-primary-light/10 to-primary/10 rounded-2xl overflow-hidden mb-12 flex items-center justify-center">
-        <div className="max-w-4xl text-center px-6">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-neutral-800 mb-4">
-            Discover and Subscribe to <span className="text-primary">Local Businesses</span>
+      <div className="relative h-[70vh] bg-gradient-to-br from-primary/20 via-primary-light/10 to-primary/30 animate-pulse">
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || banners.length === 0) {
+    return (
+      <div className="relative h-[70vh] bg-gradient-to-br from-primary via-primary-dark to-primary-light flex items-center justify-center text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/api/placeholder/1920/800')] bg-cover bg-center opacity-20"></div>
+        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            Discover Amazing 
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-100">
+              Local Businesses
+            </span>
           </h1>
-          <p className="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
-            Find and support businesses in your community with flexible subscription options
+          <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+            Connect with local businesses and unlock exclusive subscription benefits
           </p>
-          <button className="btn-primary text-lg">Get Started</button>
+          <button className="bg-white text-primary px-10 py-4 rounded-2xl font-bold text-lg hover:bg-primary hover:text-white transform hover:scale-105 transition-all duration-300 shadow-2xl">
+            <i className="fas fa-search mr-3"></i>
+            Start Exploring
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full h-96 rounded-2xl overflow-hidden mb-12 group">
-      {/* Banner images with transition */}
-      <div className="relative w-full h-full">
-        {data.data.map((banner, index) => (
-          <div 
-            key={banner.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === activeIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <img
-              src={banner.webImageUrl}
-              alt={banner.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-neutral-900/80 to-neutral-900/30 flex items-center">
-              <div className="container mx-auto px-6 md:px-12">
-                <div className="max-w-lg">
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-                    {banner.title}
-                  </h2>
-                  <p className="text-lg text-white/90 mb-6">
-                    {banner.description}
-                  </p>
-                  <a 
-                    href={banner.link} 
-                    target="_blank" 
+    <div className="relative h-[70vh] overflow-hidden group">
+      {banners.map((banner, index) => (
+        <div
+          key={banner.bannerId}
+          className={`absolute inset-0 transition-transform duration-700 ease-in-out ${
+            index === currentSlide ? 'translate-x-0' : 
+            index < currentSlide ? '-translate-x-full' : 'translate-x-full'
+          }`}
+        >
+          <img
+            src={isMobile ? banner.mobileImageUrl : banner.webImageUrl}
+            alt={banner.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = '/api/placeholder/1920/800';
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
+          
+          {/* Content Overlay */}
+          <div className="absolute inset-0 flex items-center">
+            <div className="container mx-auto px-6 lg:px-8">
+              <div className="max-w-3xl">
+                <div className="flex items-center mb-6">
+                  <div className="w-4 h-4 bg-amber-400 rounded-full mr-4"></div>
+                  <span className="text-white/90 text-lg font-semibold tracking-wide">Featured Business</span>
+                </div>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
+                  {banner.title}
+                </h1>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <a
+                    href={banner.link}
+                    target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-primary"
+                    className="bg-white text-primary px-10 py-4 rounded-2xl font-bold text-lg hover:bg-primary hover:text-white transform hover:scale-105 transition-all duration-300 shadow-2xl"
                   >
-                    Learn More
+                    <i className="fas fa-external-link-alt mr-3"></i>
+                    Visit Business
                   </a>
+                  <div className="flex items-center text-white/80">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                    <span className="text-lg">Active Subscription</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-      
-      {/* Banner controls - only show if there are multiple banners */}
-      {data.data.length > 1 && (
+        </div>
+      ))}
+
+      {/* Navigation Arrows */}
+      {banners.length > 1 && (
         <>
-          {/* Navigation dots */}
-          <div className="absolute bottom-5 left-0 right-0 flex justify-center space-x-2 z-10">
-            {data.data.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  index === activeIndex ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/70'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
-          
-          {/* Arrow navigation */}
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => setActiveIndex(prevIndex => (prevIndex === 0 ? data.data.length - 1 : prevIndex - 1))}
+            onClick={prevSlide}
+            className="absolute left-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all opacity-0 group-hover:opacity-100"
           >
-            <i className="fas fa-chevron-left"></i>
+            <i className="fas fa-chevron-left text-xl"></i>
           </button>
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => setActiveIndex(prevIndex => (prevIndex + 1) % data.data.length)}
+            onClick={nextSlide}
+            className="absolute right-8 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/20 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-all opacity-0 group-hover:opacity-100"
           >
-            <i className="fas fa-chevron-right"></i>
+            <i className="fas fa-chevron-right text-xl"></i>
           </button>
         </>
+      )}
+
+      {/* Dots Indicator */}
+      {banners.length > 1 && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-3">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`transition-all duration-300 ${
+                index === currentSlide 
+                  ? 'w-12 h-3 bg-white rounded-full' 
+                  : 'w-3 h-3 bg-white/50 hover:bg-white/75 rounded-full'
+              }`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );

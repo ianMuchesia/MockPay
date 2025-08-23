@@ -1,6 +1,4 @@
-import { api } from '../api/apiSlice';
-
-
+import { api } from "../api/apiSlice";
 
 // export const bannerApi = api.injectEndpoints({
 //   endpoints: (builder) => ({
@@ -12,7 +10,6 @@ import { api } from '../api/apiSlice';
 // });
 
 // export const { useGetBannersQuery } = bannerApi;
-
 
 // Type definitions
 interface BannerEntitlement {
@@ -115,135 +112,172 @@ interface BannerServiceResponse {
   data: BannerService;
 }
 
+export interface ScheduledBanner {
+  bannerId: number;
+  title: string;
+  link: string;
+  webImageUrl: string;
+  mobileImageUrl: string;
+  linkedSubscriptionId: number;
+  linkedSubscriptionStatus: string;
+  subscriptionEndDate: string;
+}
+
+interface ScheduledBannerResponse {
+  message: string;
+  data: ScheduledBanner[];
+}
+
 export const bannerApi = api.injectEndpoints({
   endpoints: (builder) => ({
     // Get banner entitlements
     getBannerEntitlements: builder.query<BannerEntitlementResponse, void>({
-      query: () => '/api/v2/banners/entitlements',
-      providesTags: ['Banner'],
+      query: () => "/api/v2/banners/entitlements",
+      providesTags: ["Banner"],
     }),
 
     // Get user banners with pagination
     getUserBanners: builder.mutation<BannersResponse, GetBannersRequest>({
       query: (params) => ({
-        url: '/api/v2/banners/sellers',
-        method: 'POST',
+        url: "/api/v2/banners/sellers",
+        method: "POST",
         body: {
-          searchTerm: params.searchTerm || '',
+          searchTerm: params.searchTerm || "",
           userId: params.userId || 0,
           pageNumber: params.pageNumber || 1,
           pageSize: params.pageSize || 10,
         },
       }),
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
+    }),
+    getScheduledBanners: builder.query<ScheduledBannerResponse, void>({
+      query: () => ({
+        url: "/api/v2/banners/scheduled",
+        method: "GET",
+      }),
+      providesTags: ["Banner"],
     }),
 
     // Create new banner
-    createBanner: builder.mutation<{ message: string; data: Banner }, CreateBannerRequest>({
+    createBanner: builder.mutation<
+      { message: string; data: Banner },
+      CreateBannerRequest
+    >({
       query: (bannerData) => {
         const formData = new FormData();
-        formData.append('Title', bannerData.title);
-        formData.append('Description', bannerData.description);
-        formData.append('Link', bannerData.link);
+        formData.append("Title", bannerData.title);
+        formData.append("Description", bannerData.description);
+        formData.append("Link", bannerData.link);
         //formData.append('SelectedSubscriptionId', bannerData.selectedSubscriptionId.toString());
-        
+
         if (bannerData.tariffs) {
-          bannerData.tariffs.forEach(tariff => {
-            formData.append('Tariffs', tariff);
+          bannerData.tariffs.forEach((tariff) => {
+            formData.append("Tariffs", tariff);
           });
         }
-        
-        formData.append('WebImage', bannerData.webImage);
-        formData.append('MobileImage', bannerData.mobileImage);
+
+        formData.append("WebImage", bannerData.webImage);
+        formData.append("MobileImage", bannerData.mobileImage);
 
         return {
-          url: '/api/v2/banners/create',
-          method: 'POST',
+          url: "/api/v2/banners/create",
+          method: "POST",
           body: formData,
         };
       },
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
     }),
 
-      //create premium banner
-     createPremiumBanner: builder.mutation<{ message: string; data: Banner }, CreateBannerRequest>({
+    //create premium banner
+    createPremiumBanner: builder.mutation<
+      { message: string; data: Banner },
+      CreateBannerRequest
+    >({
       query: (bannerData) => {
         const formData = new FormData();
-        formData.append('Title', bannerData.title);
-        formData.append('Description', bannerData.description);
-        formData.append('Link', bannerData.link);
-        formData.append('SelectedSubscriptionId', bannerData.selectedSubscriptionId.toString());
-        
+        formData.append("Title", bannerData.title);
+        formData.append("Description", bannerData.description);
+        formData.append("Link", bannerData.link);
+        formData.append(
+          "SelectedSubscriptionId",
+          bannerData.selectedSubscriptionId.toString()
+        );
+
         if (bannerData.tariffs) {
-          bannerData.tariffs.forEach(tariff => {
-            formData.append('Tariffs', tariff);
+          bannerData.tariffs.forEach((tariff) => {
+            formData.append("Tariffs", tariff);
           });
         }
-        
-        formData.append('WebImage', bannerData.webImage);
-        formData.append('MobileImage', bannerData.mobileImage);
+
+        formData.append("WebImage", bannerData.webImage);
+        formData.append("MobileImage", bannerData.mobileImage);
 
         return {
-          url: '/api/v2/banners/create/premium',
-          method: 'POST',
+          url: "/api/v2/banners/create/premium",
+          method: "POST",
           body: formData,
         };
       },
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
     }),
-
 
     // Update banner
-    updateBanner: builder.mutation<{ message: string; data: Banner }, UpdateBannerRequest>({
+    updateBanner: builder.mutation<
+      { message: string; data: Banner },
+      UpdateBannerRequest
+    >({
       query: (bannerData) => {
         const formData = new FormData();
-        formData.append('Title', bannerData.title);
-        formData.append('Description', bannerData.description);
-        formData.append('Link', bannerData.link);
-        
+        formData.append("Title", bannerData.title);
+        formData.append("Description", bannerData.description);
+        formData.append("Link", bannerData.link);
+
         if (bannerData.selectedSubscriptionId) {
-          formData.append('SelectedSubscriptionId', bannerData.selectedSubscriptionId.toString());
+          formData.append(
+            "SelectedSubscriptionId",
+            bannerData.selectedSubscriptionId.toString()
+          );
         }
-        
+
         if (bannerData.tariffs) {
-          bannerData.tariffs.forEach(tariff => {
-            formData.append('Tariffs', tariff);
+          bannerData.tariffs.forEach((tariff) => {
+            formData.append("Tariffs", tariff);
           });
         }
-        
+
         if (bannerData.webImage) {
-          formData.append('WebImage', bannerData.webImage);
+          formData.append("WebImage", bannerData.webImage);
         }
-        
+
         if (bannerData.mobileImage) {
-          formData.append('MobileImage', bannerData.mobileImage);
+          formData.append("MobileImage", bannerData.mobileImage);
         }
 
         return {
           url: `/api/v2/banners/${bannerData.id}`,
-          method: 'PUT',
+          method: "PUT",
           body: formData,
         };
       },
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
     }),
 
     // Delete banner
     deleteBanner: builder.mutation<{ message: string }, number>({
       query: (bannerId) => ({
         url: `/api/v2/banners/${bannerId}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
     }),
-      getBannerService: builder.query<BannerServiceResponse, void>({
-      query: () => '/api/v2/banners/service',
-      providesTags: ['Banner'],
+    getBannerService: builder.query<BannerServiceResponse, void>({
+      query: () => "/api/v2/banners/service",
+      providesTags: ["Banner"],
     }),
 
     getBanners: builder.query<{ message: string; data: Banner[] }, void>({
-      query: () => '/api/Banners',
-      providesTags: ['Banner'],
+      query: () => "/api/Banners",
+      providesTags: ["Banner"],
     }),
 
     // Link banner to subscription (assuming this endpoint exists)
@@ -253,10 +287,10 @@ export const bannerApi = api.injectEndpoints({
     >({
       query: ({ bannerId, subscriptionId }) => ({
         url: `/api/v2/banners/${bannerId}/link`,
-        method: 'POST',
+        method: "POST",
         body: { subscriptionId },
       }),
-      invalidatesTags: ['Banner'],
+      invalidatesTags: ["Banner"],
     }),
   }),
 });
@@ -269,6 +303,7 @@ export const {
   useDeleteBannerMutation,
   useLinkBannerToSubscriptionMutation,
   useGetBannersQuery,
-   useGetBannerServiceQuery,
-   useCreatePremiumBannerMutation
+  useGetBannerServiceQuery,
+  useCreatePremiumBannerMutation,
+  useGetScheduledBannersQuery,
 } = bannerApi;
